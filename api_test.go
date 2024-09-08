@@ -1,15 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/joho/godotenv"
 	"github.com/teru-0529/api-test/api"
 	"github.com/teru-0529/api-test/fixture"
+	"github.com/teru-0529/api-test/verification"
 )
 
 const FIXTURE_DIR = "./testdata/fixture/"
@@ -29,6 +32,7 @@ func TestApi(t *testing.T) {
 	files, _ := os.ReadDir(FIXTURE_DIR)
 	for _, file := range files {
 		file := file
+		fileKey := file.Name()[:strings.Index(file.Name(), ".")]
 		update := slices.Contains(updateFiles, file.Name())
 
 		// PROCESS: fixtureの生成
@@ -40,10 +44,6 @@ func TestApi(t *testing.T) {
 			continue
 		}
 
-		// FIXME:
-		log.Println(os.Getenv(fix.Execute.HostKey))
-		// FIXME:
-
 		t.Run(fix.Name, func(t *testing.T) {
 			log.Println(fix.Name)
 			if update {
@@ -52,10 +52,10 @@ func TestApi(t *testing.T) {
 
 			// PROCESS: Dbのリセット(対象テーブルのtruncate/sequenceの初期化)
 			if err = apiAccesser.Reset(fix.Reset); err != nil {
-				log.Println(" - reset NG")
+				log.Println(" - reset(before) NG")
 				t.Fatalf("reset failured: (%v).", err)
 			}
-			log.Println(" - reset OK")
+			log.Println(" - reset(before) OK")
 
 			// PROCESS: テストデータのInsert
 			for _, item := range fix.Setup {
@@ -68,12 +68,44 @@ func TestApi(t *testing.T) {
 			log.Println(" - setupTable OK")
 
 			// PROCESS: API実行
-
-			// FIXME:
-			if false {
-				t.Error("error")
+			res, status, err := apiAccesser.Execute(fix.Execute)
+			if err != nil {
+				log.Println(" - execute NG")
+				log.Printf("   - %v", err)
+				t.Fatalf("execute failured: (%v).", err)
 			}
-			// FIXME:
+			log.Println(" - execute OK")
+
+			// PROCESS: 検証1 :HttpStaus
+			if status != fix.Verification.HttpStatus {
+				t.Errorf("HttpStatus are not correct. expected: %v, got: %v:", fix.Verification.HttpStatus, status)
+			}
+
+			// PROCESS: 検証2 :レスポンスBody
+			if fix.Verification.Result.IsCheck {
+				goldenFile := path.Join(GOLDEN_DIR, fmt.Sprintf("%s.golden", fileKey))
+				verification.JsonVerify(t, res, goldenFile, update, fix.Verification.Result.Excludes)
+			}
+
+			// PROCESS: 検証3 :Database
+			for _, table := range fix.Verification.Tables {
+				res, err := apiAccesser.GetAll(table.Schema, table.Table)
+				if err != nil {
+					log.Println(" - verification NG")
+					log.Printf("   - %v", err)
+					t.Fatalf("verification failured: (%v).", err)
+				}
+				goldenFile := path.Join(GOLDEN_DIR, fmt.Sprintf("%s-%s-%s.golden", fileKey, table.Schema, table.Table))
+				verification.JsonVerify(t, res, goldenFile, update, table.Excludes)
+			}
+			log.Println(" - verification OK")
+
+			// PROCESS: 後処理(対象テーブルのtruncate/sequenceの初期化)
+			if err = apiAccesser.Reset(fix.Reset); err != nil {
+				log.Println(" - reset(after) NG")
+				t.Fatalf("reset failured: (%v).", err)
+			}
+			log.Println(" - reset(after) OK")
 		})
 
 	}

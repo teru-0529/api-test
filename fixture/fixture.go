@@ -40,7 +40,7 @@ type ExecuteOperation struct {
 }
 
 type VerificationOperation struct {
-	HttpStatus string        `yaml:"httpStatus"`
+	HttpStatus int           `yaml:"httpStatus"`
 	Result     ResultVerify  `yaml:"execResult"`
 	Tables     []TableVerify `yaml:"tables"`
 }

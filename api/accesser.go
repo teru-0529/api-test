@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/sethvargo/go-envconfig"
@@ -28,6 +30,27 @@ func New() *ApiAccesser {
 
 	accessor.client = &http.Client{}
 	return &accessor
+}
+
+// FUNCTION: API実行
+func (api *ApiAccesser) Execute(exec fixture.ExecuteOperation) ([]byte, int, error) {
+	hostName := os.Getenv(exec.HostKey)
+	urlPath, _ := url.JoinPath(hostName, exec.Path)
+
+	req, _ := http.NewRequest(exec.Method, urlPath, strings.NewReader(exec.Body))
+	req.Header.Set("Content-Type", "application/json")
+	for _, head := range exec.Headers {
+		req.Header.Set(head.Key, head.Value)
+	}
+
+	// API実行
+	res, err := api.client.Do(req)
+	if err != nil {
+		return nil, 500, fmt.Errorf("execute failured: (%w).", err)
+	}
+	defer res.Body.Close()
+	jsonData, err := io.ReadAll(res.Body)
+	return jsonData, res.StatusCode, err
 }
 
 // FUNCTION: リセット
@@ -93,8 +116,31 @@ func (api *ApiAccesser) BulkInsert(schema string, table string, jsonData string)
 		return fmt.Errorf("bulk insert failured: (%w).", err)
 	}
 	defer res.Body.Close()
-	if res.StatusCode == http.StatusBadRequest {
+	switch res.StatusCode {
+	case http.StatusBadRequest:
 		return fmt.Errorf("%w: [%s].", errors.New("Bad request"), jsonData)
+	case http.StatusNotFound:
+		return fmt.Errorf("%w: [%s.%s].", errors.New("Table not found"), schema, table)
 	}
 	return nil
+}
+
+// FUNCTION: データの読込み
+// postgRESTによるDBアクセス、全件検索をしJSONを返す。
+func (api *ApiAccesser) GetAll(schema string, table string) ([]byte, error) {
+	urlPath, _ := url.JoinPath(api.PostgrestHost, table)
+
+	req, _ := http.NewRequest("GET", urlPath, nil)
+	req.Header.Set("Accept-profile", schema)
+
+	// API実行
+	res, err := api.client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("all get failured: (%w).", err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("%w: [%s.%s].", errors.New("Table not found"), schema, table)
+	}
+	return io.ReadAll(res.Body)
 }
