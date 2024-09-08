@@ -75,12 +75,12 @@ func New(path string) (*Fixture, error) {
 	}
 
 	// PROCESS: unmarchal
-	var fixture Fixture
-	err = yaml.Unmarshal([]byte(file), &fixture)
+	var fix Fixture
+	err = yaml.Unmarshal([]byte(file), &fix)
 	if err != nil {
 		return nil, err
 	}
-	return &fixture, nil
+	return &fix, nil
 }
 
 // FUNCTION: UpdateFileリストの取得
