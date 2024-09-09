@@ -17,14 +17,14 @@ import (
 
 const FIXTURE_DIR = "./testdata/fixture/"
 const GOLDEN_DIR = "./testdata/golden/"
-const UPDATE_FILES_LIST_PATH = "./testdata/updateFiles.yaml"
+const TEST_SETTING_PATH = "./testdata/testSetting.yaml"
 
 // TEST: API実行テスト
 func TestApi(t *testing.T) {
 	// PROCESS: configの呼び出し
 	leadEnv()
 	apiAccesser := api.New()
-	updateFiles, err := fixture.UpdateFiles(UPDATE_FILES_LIST_PATH)
+	setting, err := fixture.NewSettings(TEST_SETTING_PATH)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -33,7 +33,7 @@ func TestApi(t *testing.T) {
 	for _, file := range files {
 		file := file
 		fileKey := file.Name()[:strings.Index(file.Name(), ".")]
-		update := slices.Contains(updateFiles, file.Name())
+		update := slices.Contains(setting.UpdateGorden, file.Name())
 
 		// PROCESS: fixtureの生成
 		fix, err := fixture.New(path.Join(FIXTURE_DIR, file.Name()))
@@ -46,6 +46,13 @@ func TestApi(t *testing.T) {
 
 		t.Run(fix.Name, func(t *testing.T) {
 			log.Println(fix.Name)
+
+			// PROCESS: 部分テストのケースでwhiteListに存在しなければskip
+			if setting.PartialTest && !slices.Contains(setting.WhiteList, file.Name()) {
+				log.Println(" - (*) skipping this test case.")
+				t.Skip("skipping this test case.")
+			}
+
 			if update {
 				log.Println(" - (*) golden file update.")
 			}

@@ -66,6 +66,13 @@ type TableVerify struct {
 	Excludes []string `yaml:"exclude"`
 }
 
+// TITLE: Settings構造体
+type Settings struct {
+	WhiteList    []string `yaml:"whiteList"`
+	UpdateGorden []string `yaml:"updateGorden"`
+	PartialTest  bool
+}
+
 // FUNCTION: Fixture構造のパース
 func New(path string) (*Fixture, error) {
 	// PROCESS: read
@@ -84,7 +91,7 @@ func New(path string) (*Fixture, error) {
 }
 
 // FUNCTION: UpdateFileリストの取得
-func UpdateFiles(path string) ([]string, error) {
+func NewSettings(path string) (*Settings, error) {
 	// PROCESS: read
 	file, err := os.ReadFile(path)
 	if err != nil {
@@ -92,10 +99,11 @@ func UpdateFiles(path string) ([]string, error) {
 	}
 
 	// PROCESS: unmarchal
-	var files []string
+	var files Settings
 	err = yaml.Unmarshal([]byte(file), &files)
 	if err != nil {
 		return nil, err
 	}
-	return files, nil
+	files.PartialTest = len(files.WhiteList) > 0
+	return &files, nil
 }
