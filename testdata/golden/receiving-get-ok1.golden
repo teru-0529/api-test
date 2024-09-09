@@ -1,0 +1,32 @@
+{
+  "customerName": "株式会社武田物産",
+  "details": [
+    {
+      "cancelQuantity": 0,
+      "costPrice": 20000,
+      "orderQuantity": 3,
+      "orderStatus": "WORK_IN_PROGRESS",
+      "productId": "P0001",
+      "profitRate": 0.38,
+      "remainingQuantity": 3,
+      "sellingPrice": 32000,
+      "shippingQuantity": 0
+    },
+    {
+      "cancelQuantity": 0,
+      "costPrice": 15000,
+      "orderQuantity": 1,
+      "orderStatus": "WORK_IN_PROGRESS",
+      "productId": "P0003",
+      "profitRate": 0.21,
+      "remainingQuantity": 1,
+      "sellingPrice": 19000,
+      "shippingQuantity": 0
+    }
+  ],
+  "operatorName": "豊臣秀吉",
+  "orderNo": "RO-0000002",
+  "orderStatus": "WORK_IN_PROGRESS",
+  "remainingOrderPrice": 115000,
+  "totalOrderPrice": 115000
+}

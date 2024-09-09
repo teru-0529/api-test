@@ -17,6 +17,7 @@ import (
 
 const FIXTURE_DIR = "./testdata/fixture/"
 const GOLDEN_DIR = "./testdata/golden/"
+const SPEC_DIR = "./testdata/testspec/"
 const TEST_SETTING_PATH = "./testdata/testSetting.yaml"
 
 // TEST: API実行テスト
@@ -112,6 +113,7 @@ func TestApi(t *testing.T) {
 			} else {
 				log.Println(" - verification OK / (*) didn't pass the test.")
 			}
+			fix.WriteSpecification(path.Join(SPEC_DIR, fmt.Sprintf("%s.md", fileKey)))
 
 			// PROCESS: 後処理(対象テーブルのtruncate/sequenceの初期化)
 			if err = apiAccesser.Reset(fix.Reset); err != nil {

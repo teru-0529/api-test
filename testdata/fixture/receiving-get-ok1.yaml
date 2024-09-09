@@ -1,0 +1,55 @@
+dataType: api_test_fixture
+version: 1.0.0
+# ----+----+----+
+# 基本情報
+name: 受注取得(OK case1)
+description: 受注情報の取得処理（成功ケース）。
+# ----+----+----+
+# 情報クリア
+reset:
+  sequences:
+    - schema: orders
+      items: [order_no_seed, product_id_seed]
+  tables:
+    - schema: orders
+      items: [products, receivings]
+# ----+----+----+
+# 事前処理
+setupTable:
+  - schema: orders
+    table: products
+    body: '[
+      {"product_name": "日本刀","cost_price": 20000},
+      {"product_name": "火縄銃","cost_price": 40000},
+      {"product_name": "弓","cost_price": 15000}
+      ]'
+  - schema: orders
+    table: receivings
+    body: '[
+      {"operator_name": "織田信長","customer_name": "徳川商事株式会社"},
+      {"operator_name": "豊臣秀吉","customer_name": "株式会社武田物産"}
+      ]'
+  - schema: orders
+    table: receiving_details
+    body: '[
+      {"order_no": "RO-0000001","product_id": "P0002","receiving_quantity": 5,"sellling_price": 58000},
+      {"order_no": "RO-0000002","product_id": "P0001","receiving_quantity": 3,"sellling_price": 32000},
+      {"order_no": "RO-0000002","product_id": "P0003","receiving_quantity": 1,"sellling_price": 19000}
+      ]'
+# API実行
+execute:
+  hostKey: ORDERS_API_HOST
+  method: GET
+  path: /receivings/RO-0000002
+  headers:
+    - key: x-account-id
+      value: P0673822
+  body: null
+# ----+----+----+
+# 検証
+verification:
+  httpStatus: 200
+  execResult:
+    check: true
+    exclude: [/orderDate]
+  tables: []

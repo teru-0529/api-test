@@ -1,0 +1,26 @@
+[
+  {
+    "cancel_quantity": 0,
+    "cost_price": 20000,
+    "order_no": "RO-0000001",
+    "order_status": "WORK_IN_PROGRESS",
+    "product_id": "P0001",
+    "profit_rate": 0.43,
+    "receiving_quantity": 3,
+    "remaining_quantity": 3,
+    "sellling_price": 34800,
+    "shipping_quantity": 0
+  },
+  {
+    "cancel_quantity": 0,
+    "cost_price": 15000,
+    "order_no": "RO-0000001",
+    "order_status": "WORK_IN_PROGRESS",
+    "product_id": "P0003",
+    "profit_rate": 0.86,
+    "receiving_quantity": 1,
+    "remaining_quantity": 1,
+    "sellling_price": 106400,
+    "shipping_quantity": 0
+  }
+]
