@@ -1,0 +1,11 @@
+[
+  {
+    "customer_name": "徳川商事株式会社",
+    "operator_name": "織田信長",
+    "order_no": "RO-0000001",
+    "order_status": "WORK_IN_PROGRESS",
+    "remaining_order_price": 210800,
+    "total_order_price": 210800,
+    "updated_by": "01J7GFV2YMAYM0EBXV8SS3Y1VS::P0673822"
+  }
+]

@@ -1,0 +1,48 @@
+dataType: api_test_fixture
+version: 1.0.0
+# ----+----+----+
+# 基本情報
+name: 受注登録(NG case1)
+description: 受注情報の登録処理（失敗ケース）、受注明細で指定する商品の受注数量が正しくない(負数)場合。登録に失敗し400が返る。
+# ----+----+----+
+# 情報クリア
+reset:
+  sequences:
+    - schema: orders
+      items: [order_no_seed, product_id_seed]
+  tables:
+    - schema: orders
+      items: [products, receivings]
+# ----+----+----+
+# 事前処理
+setupTable:
+  - schema: orders
+    table: products
+    body: '[
+      {"product_name": "日本刀","cost_price": 20000},
+      {"product_name": "火縄銃","cost_price": 40000},
+      {"product_name": "弓","cost_price": 15000}
+      ]'
+# API実行
+execute:
+  hostKey: ORDERS_API_HOST
+  method: POST
+  path: /receivings
+  headers:
+    - key: x-account-id
+      value: P0673822
+  body: '{
+    "operatorName": "織田信長",
+    "customerName": "徳川商事株式会社",
+    "details": [
+    {"productId": "P0001", "orderQuantity": -1, "sellingPrice": 34800 },
+    {"productId": "P0003", "orderQuantity": 1, "sellingPrice": 106400 }
+    ]}'
+# ----+----+----+
+# 検証
+verification:
+  httpStatus: 400
+  execResult:
+    check: false
+    exclude: []
+  tables: []

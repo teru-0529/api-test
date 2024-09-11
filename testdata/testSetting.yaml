@@ -1,0 +1,11 @@
+wipList:
+  - receiving-get-ok1.yaml
+whiteList:
+  # - receiving-post-ok1.yaml
+  # - receiving-post-ng1.yaml
+  # - receiving-post-ng2.yaml
+updateGorden:
+  # - receiving-get-ok1.yaml
+  - receiving-post-ok1.yaml
+  # - receiving-post-ng1.yaml
+  # - receiving-post-ng2.yaml
