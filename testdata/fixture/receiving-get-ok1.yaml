@@ -2,7 +2,7 @@ dataType: api_test_fixture
 version: 1.0.0
 # ----+----+----+
 # 基本情報
-name: 受注取得(OK case1)
+# name: 受注取得(OK case1)
 description: 受注情報の取得処理（成功ケース）。
 # ----+----+----+
 # 情報クリア
@@ -51,5 +51,6 @@ verification:
   httpStatus: 200
   execResult:
     check: true
-    exclude: [/orderDate]
+    exclude: []
+    # exclude: [/orderDate]
   tables: []

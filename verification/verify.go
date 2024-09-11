@@ -12,7 +12,7 @@ import (
 )
 
 // FUNCTION: Json検証
-func JsonVerify(t *testing.T, jsonData []byte, goldenPath string, update bool, excludes []string) bool {
+func JsonVerify(t *testing.T, jsonData []byte, goldenPath string, update bool, excludes []string, key string) bool {
 	t.Helper()
 
 	// PROCESS: 検証対象外項目の除外
@@ -33,7 +33,7 @@ func JsonVerify(t *testing.T, jsonData []byte, goldenPath string, update bool, e
 
 	// PROCESS: 検証
 	if diff := jsondiff.Diff(jsonData, expected); diff != "" {
-		t.Errorf("response jsons are not correct. diff:\n%s", diff)
+		t.Errorf("response jsons are not correct[%s]. diff:\n%s", key, diff)
 		return false
 	}
 	return true

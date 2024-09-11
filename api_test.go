@@ -40,18 +40,22 @@ func TestApi(t *testing.T) {
 		// PROCESS: fixtureの生成
 		fix, err := fixture.New(path.Join(FIXTURE_DIR, file.Name()))
 		if err != nil {
-			t.Errorf("fixture parse error:[%s], (%v).", file.Name(), err)
-			log.Printf("fixture parse error:[%s], (%v).", file.Name(), err)
-			log.Println("skip test")
+			t.Errorf("fixture parse error[%s]: %v", file.Name(), err)
+			log.Printf("fixture parse error[%s]: %v, so this test skipped.", file.Name(), err)
+			continue
+		}
+
+		log.Println(fix.Name)
+		if slices.Contains(setting.WipList, file.Name()) {
+			log.Println(" - (*) work in progress, so this test skipped.")
 			continue
 		}
 
 		t.Run(fix.Name, func(t *testing.T) {
-			log.Println(fix.Name)
 
 			// PROCESS: 部分テストのケースでwhiteListに存在しなければskip
 			if setting.PartialTest && !slices.Contains(setting.WhiteList, file.Name()) {
-				log.Println(" - (*) skipped the test.")
+				log.Println(" - (*) whitelist test execute, so this test skipped.")
 				t.Skip("skipped the test.")
 			}
 
@@ -94,7 +98,7 @@ func TestApi(t *testing.T) {
 			// PROCESS: 検証2 :レスポンスBody
 			if fix.Verification.Result.IsCheck {
 				goldenFile := path.Join(GOLDEN_DIR, fmt.Sprintf("%s.golden", fileKey))
-				verify = verify && verification.JsonVerify(t, res, goldenFile, update, fix.Verification.Result.Excludes)
+				verify = verify && verification.JsonVerify(t, res, goldenFile, update, fix.Verification.Result.Excludes, "api response")
 			}
 
 			// PROCESS: 検証3 :Database
@@ -105,13 +109,14 @@ func TestApi(t *testing.T) {
 					log.Printf("   - %v", err)
 					t.Fatalf("verification failured: (%v).", err)
 				}
+				key := fmt.Sprintf("table:: %s.%s", table.Schema, table.Table)
 				goldenFile := path.Join(GOLDEN_DIR, fmt.Sprintf("%s-%s-%s.golden", fileKey, table.Schema, table.Table))
-				verify = verify && verification.JsonVerify(t, res, goldenFile, update, table.Excludes)
+				verify = verify && verification.JsonVerify(t, res, goldenFile, update, table.Excludes, key)
 			}
 			if verify {
 				log.Println(" - verification OK")
 			} else {
-				log.Println(" - verification OK / (*) didn't pass the test.")
+				log.Println(" - verification OK / (*) failure the test.")
 			}
 			fix.WriteSpecification(path.Join(SPEC_DIR, fmt.Sprintf("%s.md", fileKey)))
 

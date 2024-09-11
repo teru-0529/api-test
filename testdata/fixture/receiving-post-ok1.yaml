@@ -2,7 +2,7 @@ dataType: api_test_fixture
 version: 1.0.0
 # ----+----+----+
 # 基本情報
-name: 受注登録(OK case2)
+name: 受注登録(OK case1)
 description: 受注情報の登録処理（成功ケース）。
 # ----+----+----+
 # 情報クリア

@@ -2,6 +2,7 @@ package fixture
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
@@ -69,6 +70,7 @@ type TableVerify struct {
 
 // TITLE: Settings構造体
 type Settings struct {
+	WipList      []string `yaml:"wipList"`
 	WhiteList    []string `yaml:"whiteList"`
 	UpdateGorden []string `yaml:"updateGorden"`
 	PartialTest  bool
@@ -87,6 +89,9 @@ func New(path string) (*Fixture, error) {
 	err = yaml.Unmarshal([]byte(file), &fix)
 	if err != nil {
 		return nil, err
+	}
+	if fix.Name == "" {
+		return nil, errors.New("name field required")
 	}
 	return &fix, nil
 }
@@ -109,6 +114,7 @@ func NewSettings(path string) (*Settings, error) {
 	return &files, nil
 }
 
+// FUNCTION: テスト仕様書出力
 func (f *Fixture) WriteSpecification(path string) error {
 	// PROCESS: ファイル準備
 	file, err := os.Create(path)
